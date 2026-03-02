@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MongoDB Query Execution Analysis</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>MongoDB Query Execution Analysis Dashboard</h1>
+      <p>
+        Review top queries from logs, inspect explain plans (<code>queryPlanner</code>,
+        <code>executionStats</code>, <code>allPlansExecution</code>), and identify
+        performance opportunities for MongoDB 6.0/7.0/8.0.
+      </p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1) Top Query Review from Logs</h2>
+        <p>
+          Paste MongoDB log lines (JSON log format recommended). The tool groups similar queries,
+          counts occurrences, and highlights the highest-impact query based on total time and
+          frequency.
+        </p>
+        <textarea id="logInput" rows="10" placeholder="Paste MongoDB log lines here..."></textarea>
+        <div class="actions">
+          <button id="analyzeLogsBtn">Analyze Logs</button>
+          <button id="sampleLogsBtn" class="secondary">Load Sample</button>
+        </div>
+        <div id="logSummary"></div>
+        <canvas id="topQueriesChart" width="900" height="260"></canvas>
+        <div class="table-wrap">
+          <table id="topQueriesTable">
+            <thead>
+              <tr>
+                <th>Fingerprint</th>
+                <th>Occurrences</th>
+                <th>Total ms</th>
+                <th>Avg ms</th>
+                <th>Max ms</th>
+                <th>P95 ms</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) Explain Plan Analysis</h2>
+        <label for="explainMode">Explain mode</label>
+        <select id="explainMode">
+          <option value="queryPlanner">explain()</option>
+          <option value="executionStats">explain('executionStats')</option>
+          <option value="allPlansExecution">explain('allPlansExecution')</option>
+        </select>
+        <p id="modeWarning" class="warning hidden"></p>
+
+        <textarea id="explainInput" rows="10" placeholder="Paste explain JSON output here..."></textarea>
+        <div class="actions">
+          <button id="analyzeExplainBtn">Analyze Explain</button>
+          <button id="sampleExplainBtn" class="secondary">Load Sample</button>
+        </div>
+        <div id="explainSummary"></div>
+        <ul id="suggestionsList"></ul>
+      </section>
+
+      <section class="card">
+        <h2>3) Redundant Index Review</h2>
+        <p>
+          Paste <code>db.collection.getIndexes()</code> output. Optional: add
+          <code>$indexStats</code> usage data as <code>{"usage": [...]}</code>.
+        </p>
+        <textarea id="indexesInput" rows="8" placeholder='[{"name":"a_1","key":{"a":1}}, ...]'></textarea>
+        <div class="actions">
+          <button id="analyzeIndexesBtn">Analyze Indexes</button>
+          <button id="sampleIndexesBtn" class="secondary">Load Sample</button>
+        </div>
+        <div id="indexesSummary"></div>
+      </section>
+
+      <section class="card">
+        <h2>4) MongoDB 6.0 / 7.0 / 8.0 Guidance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>6.0</th>
+                <th>7.0</th>
+                <th>8.0</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Explain modes</td>
+                <td>queryPlanner, executionStats, allPlansExecution</td>
+                <td>Same modes; optimizer improvements</td>
+                <td>Same modes; improved diagnostics + slot-based execution maturity</td>
+              </tr>
+              <tr>
+                <td>Plan cache insights</td>
+                <td>plan cache visibility and index filters available</td>
+                <td>enhanced query settings controls</td>
+                <td>continued query settings + performance tooling enhancements</td>
+              </tr>
+              <tr>
+                <td>Index checks</td>
+                <td>Use getIndexes + $indexStats</td>
+                <td>Same + reassess after version upgrade</td>
+                <td>Same + clean unused/redundant indexes proactively</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Always confirm final operational limits and behavior with your exact server patch level
+          and official release notes for MongoDB 6.0/7.0/8.0 before production rollout.
+        </p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
